@@ -1,7 +1,8 @@
-
-def load_areas_csv():
+import sys
+import time	
+def load_areas_csv(filename):
 	import csv
-	with open('partitions.csv') as csv_file:
+	with open(filename) as csv_file:
 		csv_reader = csv.reader(csv_file, delimiter=',')
 		line_count = 0
 		areas=[]
@@ -77,20 +78,31 @@ def load_and_merge_stations(areas):
 	return stations
 
 
-def save_gasolineras_to_csv(gas):
+def save_gasolineras_to_csv(gas,output_file):
 	import csv	
-	from datetime import datetime
-	today = datetime.today().strftime('%Y-%m-%d')
-	with open(today+'_stations.csv', 'w') as output_file:
+	
+	with open(output_file, 'w', encoding='utf-8') as output_file:
 		keys=['lat','lng','price_diesel','price_euro95','url','name','chain','address','postcode','place','updated_diesel','updated_euro95']
 		dict_writer = csv.DictWriter(output_file,fieldnames=keys)
 		dict_writer.writeheader()
 		dict_writer.writerows(gas)
 
 
-areas = load_areas_csv()
+def file_name(index,default):
+	if len(sys.argv)>index:
+		return sys.argv[index]
+	else:
+		return default
+
+
+
+areas_file = file_name(1,'partitions.csv')
+output_file = 'data/'+file_name(2,f'{time.strftime("%Y_%m_%d__%H_%M")}_stations.csv')
+
+areas = load_areas_csv(areas_file)
 stations = load_and_merge_stations(areas)
-save_gasolineras_to_csv(stations)
+stations = sorted(stations, key=lambda row: (row['lat'],row['lng'],row['url']))
+save_gasolineras_to_csv(stations,output_file)
 
 
 
