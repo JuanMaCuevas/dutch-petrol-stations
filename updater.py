@@ -82,7 +82,7 @@ def load_and_merge_stations(areas):
 			station = stations.get(key,{})
 			station.update(transform_station(s))
 			stations[key]=station
-		print(f"{i+1}/{len(areas)}")
+		# print(f"{i+1}/{len(areas)}")
 	stations = [v for k,v in stations.items()]
 	return stations
 
@@ -104,16 +104,26 @@ def file_name(index,default):
 		return default
 
 
+def fetch_and_save_data(areas_file):
+	output_file = 'data/'+file_name(2,f'{time.strftime("%Y_%m_%d__%H_%M")}_stations.csv')
+	print(f'Fetching at {time.strftime("%H:%M:%S")}... ')
 
+	start_time=current_milli_time()
+	areas = load_areas_csv(areas_file)
+	stations = load_and_merge_stations(areas)
+	stations = sorted(stations, key=lambda row: (row['lat'],row['lng'],row['url']))
+	save_gasolineras_to_csv(stations,output_file)
+	save_gasolineras_to_csv(stations,'data/stations.csv')
+	print(f'{(current_milli_time()-start_time)//1000} seconds')
+
+
+current_milli_time = lambda: int(round(time.time() * 1000))
 areas_file = file_name(1,'partitions.csv')
-output_file = 'data/'+file_name(2,f'{time.strftime("%Y_%m_%d__%H_%M")}_stations.csv')
-
-areas = load_areas_csv(areas_file)
-stations = load_and_merge_stations(areas)
-stations = sorted(stations, key=lambda row: (row['lat'],row['lng'],row['url']))
-save_gasolineras_to_csv(stations,output_file)
-save_gasolineras_to_csv(stations,'data/stations.csv')
-
+for i in range(45):
+	if i%5==0:
+		fetch_and_save_data(areas_file)
+	else:
+		time.sleep(60)
 
 
 
