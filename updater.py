@@ -1,5 +1,10 @@
 import sys
 import time	
+import csv	
+import urllib.parse
+import requests
+from xml.etree import ElementTree
+
 
 """
 This script compiles a list of fuel stations with updated prices.
@@ -10,7 +15,6 @@ then saved to a CSV file in the data/ folder
 
 """
 def load_areas_csv(filename):
-	import csv
 	with open(filename) as csv_file:
 		csv_reader = csv.reader(csv_file, delimiter=',')
 		line_count = 0
@@ -24,17 +28,14 @@ def load_areas_csv(filename):
 		return areas
 
 def encode_params(area,type_gas):
-	import urllib.parse
 	position = {'left':area[0][1],'right':area[1][1],'bottom':area[0][0],'top':area[1][0],'type':type_gas }
 	return urllib.parse.urlencode(position)
 
 def list_stations_from_xml(text):
-	from xml.etree import ElementTree
 	xml=ElementTree.fromstring(text)
 	return [marker.attrib for marker in xml.findall('marker')]
 
 def request_list_stations_in_area(area,type_fuel):
-	import requests
 	url = f'https://www.brandstof-zoeker.nl/getxml.fcgi?{encode_params(area,type_fuel)}'
 	headers =  {'Connection':'keep-alive','Accept':'application/xml, text/xml, */*; q=0.01','X-Requested-With':'XMLHttpRequest','Sec-Fetch-Mode':'cors','Sec-Fetch-Site':'same-origin', 'Referer':'https://www.brandstof-zoeker.nl/',}
 	response = requests.get(url, headers=headers)
@@ -88,8 +89,6 @@ def load_and_merge_stations(areas):
 
 
 def save_gasolineras_to_csv(gas,output_file):
-	import csv	
-	
 	with open(output_file, 'w', encoding='utf-8') as output_file:
 		keys=['lat','lng','price_diesel','price_euro95','url','name','chain','address','postcode','place','updated_diesel','updated_euro95']
 		dict_writer = csv.DictWriter(output_file,fieldnames=keys)
