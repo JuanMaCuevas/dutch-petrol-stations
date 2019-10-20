@@ -1,5 +1,14 @@
 import sys
 import time	
+
+"""
+This script compiles a list of fuel stations with updated prices.
+It first loads a csv with a set of squared areas (~60) delimited by NorthWest and SouthEast point coordinates
+Then makes two requests to get the fuel station's information in the area (for diesel AND euro95 gasoline)
+The data is cleaned and gas stations merged in a list using the 'url' field as key
+then saved to a CSV file in the data/ folder
+
+"""
 def load_areas_csv(filename):
 	import csv
 	with open(filename) as csv_file:
@@ -103,6 +112,7 @@ areas = load_areas_csv(areas_file)
 stations = load_and_merge_stations(areas)
 stations = sorted(stations, key=lambda row: (row['lat'],row['lng'],row['url']))
 save_gasolineras_to_csv(stations,output_file)
+save_gasolineras_to_csv(stations,'data/stations.csv')
 
 
 
