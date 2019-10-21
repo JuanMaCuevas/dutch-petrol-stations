@@ -17,14 +17,15 @@ then saved to a CSV file in the data/ folder
 
 
 def main():
-	times = param(1,1) # default 1 time
-	wait_time_minutes = param(2,1) # default 1 minute
+	times = int(param(1,1)) # default 1 time
+	wait_time_minutes = float(param(2,1)) # default 1 minute
+	print(60*wait_time_minutes)
 	areas_file = 'partitions.csv'
 	fetch_and_save_data(areas_file)
 	for i in range(times-1):
-		print(f'waiting {wait_time_minutes} minutes...')
-		time.sleep(60 * wait_time_minutes)
-		fetch_and_save_data(areas_file)
+			print(f'waiting {wait_time_minutes} minutes...')
+			time.sleep(60 * wait_time_minutes)
+			fetch_and_save_data(areas_file)
 
 
 
@@ -138,8 +139,8 @@ def fetch_and_save_data(areas_file):
 
   
 if __name__ == "__main__":
-    # execute only if run as a script
-    main()
+	# execute only if run as a script
+	main()
 
 
 
