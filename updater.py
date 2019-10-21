@@ -14,6 +14,22 @@ The data is cleaned and gas stations merged in a list using the 'url' field as k
 then saved to a CSV file in the data/ folder
 
 """
+
+
+def main():
+	times = param(1,1) # default 1 time
+	wait_time_minutes = param(2,1) # default 1 minute
+	areas_file = 'partitions.csv'
+	fetch_and_save_data(areas_file)
+	for i in range(times-1):
+		print(f'waiting {wait_time_minutes} minutes...')
+		time.sleep(60 * wait_time_minutes)
+		fetch_and_save_data(areas_file)
+
+
+
+current_milli_time = lambda: int(round(time.time() * 1000))
+
 def load_areas_csv(filename):
 	with open(filename) as csv_file:
 		csv_reader = csv.reader(csv_file, delimiter=',')
@@ -96,7 +112,7 @@ def save_gasolineras_to_csv(gas,output_file):
 		dict_writer.writerows(gas)
 
 
-def file_name(index,default):
+def param(index,default):
 	if len(sys.argv)>index:
 		return sys.argv[index]
 	else:
@@ -104,27 +120,26 @@ def file_name(index,default):
 
 
 def fetch_and_save_data(areas_file):
-	output_file = 'data/'+file_name(2,f'{time.strftime("%Y_%m_%d__%H_%M")}_stations.csv')
+	
 	print(f'Fetching at {time.strftime("%H:%M:%S")}... ')
-
+	
 	start_time=current_milli_time()
 	areas = load_areas_csv(areas_file)
 	stations = load_and_merge_stations(areas)
 	stations = sorted(stations, key=lambda row: (row['lat'],row['lng'],row['url']))
+
+	output_file = f'data/{time.strftime("%Y_%m_%d__%H_%M")}_stations.csv'
 	save_gasolineras_to_csv(stations,output_file)
+
 	save_gasolineras_to_csv(stations,'data/stations.csv')
+	
 	print(f'{(current_milli_time()-start_time)//1000} seconds')
 
 
-current_milli_time = lambda: int(round(time.time() * 1000))
-areas_file = file_name(1,'partitions.csv')
-for i in range(45):
-	if i%5==0:
-		fetch_and_save_data(areas_file)
-	else:
-		time.sleep(60)
-
-
+  
+if __name__ == "__main__":
+    # execute only if run as a script
+    main()
 
 
 
